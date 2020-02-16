@@ -1,0 +1,111 @@
+In this exercise, you will write C++ code to perform Monte Carlo simulated annealing,
+which are key algorithms for protein design and structure prediction in Rosetta.
+
+In a generic Rosetta protocol, we start with a protein structure, represented and stored in a Pose class.
+Then, we perturb the structure in intelligent ways to "sample" new conformations/sequences,
+check the "score" of the new structure, and compare it with the score of the previous conformation,
+and decide whether to accept the new structure or reject it (typically using a Boltzmann factor).
+As the simulation progresses, a structure nearer to the lowest global score minima should be reached.
+
+In this exercise, we will deal with a much simpler version of this process, outside of the complications
+of the main Rosetta codebase.
+-------------------------------------------------------------------------------------------------------------------
+For various score functions, f(x, y), we will use simulated annealing process to find the (x, y) point
+which gives the global minimum.
+
+Starting with an arbitrary point (x, y), we calculate z = f(x,y), * and then pertub the (x, y) point by
+a random delta to a new (x+delta_x, y+delta_y).
+We then calculate z' = f(x+delta_x, y+delta_y) and compare the new z' with previous z to decide whether to
+accept this new point (x+delta_x, y+delta_y) or not.
+To decide whether to accept the new point, you will use the Metropolis criterion (based on the Boltzmann
+distribution), which you will implement in a class named "MonteCarlo."
+
+(* think of (x,y) as a point on a 2d plane, and z as the height of each point, so that the function
+f defines a surface on the x,y plane. There will be hills and valeys as f rises and falls. You want
+to find the (x,y) pair that is the lowest point in this landscape.)
+
+Finally, at the end of the simulation, we will return the (x, y) pair that you encountered with 
+the smallest f(x,y) -- depending on the function, f, this may or may not be the the global
+minimum.
+
+You will build from several classes, functions, and files that are already written.
+You shouldn't need to write any additional code in these files (unless you so desire).
+1) Landscape.hh and Landscape.cc
+   This class contains implementations of "energy landscapes" of the form z = f(x, y)
+   Three functions are implemented: ackley, ratrigin, and sum_squares.
+2) main.cc
+   This program, when compiled and run as ./main, provides a user-facing interface to the code, that you
+   can use to try running a simulation using any of the defined landscapes, and starting (x, y) points
+3) test.cc
+   This program, when compiled and run as ./test, automatically runs simulations on all three landscapes,
+   starting from a particular set of (x, y) starting points.
+
+4) Uniform.hh and Uniform.cc
+   Since the Monte Carlo method relys on randomness, this class functions to generate uniformly distributed random numbers
+   between 0 and 1. If you do not modify this class (or its seed), your program should be able to produce consistent
+   output.
+
+5) Makefile
+   Since this homework contains multiple .cc/.hh files, the Makefile provides an easy way to compile
+   the "main" and "test" binaries (aka executables). Run the command "make" in this folder to
+   compile the binaries and run tests.
+
+6) test_program.sh
+   This script runs the "test" binary and compares the output against expected output from our implementation.
+
+   Now, sometimes, but not always, when you run a program on two different computers, and you use
+   the same starting point for the random number generator (aka the random number *seed*), then you
+   will get the same output. This is definitely true if all of your calculations are with integers.
+   In the case of this assignment, the yes/no decision to accept or reject the proposed change
+   to (x,y), you are using floating point numbers, and floating point calculations can differ
+   between architectures and compilers, due simply to when values are moved in and out of registers
+   and the order in which calculations are made. Why am I mentioning this? Well, the original
+   author of this homework assignment did not understand this complication and believed
+   that every computer correctly implementing the Metropolis criterion would generate
+   the same results so long as the random seeds were identical. This is not true.
+
+   If you run the "test_program.sh" script, the output of your code will be written to test.out
+   The supposed "gold standard" output is held in expected_test.out -- test_program.sh will ask
+   whether your program's out matches the "gold standard" output, but even if your program does
+   not match, your program may still be perfectly correct.
+
+   What's the good of this script then? Well, you can run it once and it will (possibly) tell
+   you that the contents of test.out differs from that of expected_test.out. OK. Then you
+   can overwrite the contents of expected_test.out (i.e. "mv test.out expected_test.out"),
+   and re-run test_program.sh. The second time you run it, the answers will be the same.
+
+   Why?  (Please provide your answer here.)
+
+   Since the random number generator always starts at the same seed (and actually a real 
+   random generator does not exist as far as I know), the "random" numbers are reproducible.
+
+7) run.cc
+   Launches the main (non-test) simulation.
+
+------
+
+There are two classes we have provided function definitions for in .hh files, you will need
+to define these functions in the corresponding .cc files. Look for the "TO DO" comments in the
+code for instructions on what specifically you are asked to do for each of these files.
+
+1) Coordinates.hh/Coordinates.cc
+   This class stores the (x, y) points and calculates the z value/score from (x, y) and the stored
+   landscape function. It provides getters/setters to access the (x, y) values, retrieve them,
+   and modify them by a given delta. 
+   When a Coordinates object is initialized or modified, the z value should be recomputed.
+
+2) MonteCarlo.hh/MonteCarlo.cc
+   This class contains the main functionality you will need to implement in this assignment:
+   the boltzmann function which decides whether to accept or reject a new (x, y) point.
+
+To compile/test this assignment:
+Type "make" in the command line to compile both the "test" and "main" binaries, and run the test binary.
+(Requires having the "make" and "diff" command line applications installed)
+
+-------
+
+What you will submit:
+
+The .hh and .cc files + your answer to 6) above in this README file, wrapped up in a .tar.gz.
+
+(Please do not send me an executable).
